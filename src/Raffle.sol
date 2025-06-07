@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.19;
+
 import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
 import {IVRFCoordinatorV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+import {AutomationCompatibleInterface} from
+    "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A sample Raffle Contract
@@ -30,7 +32,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     /* State variables */
     address private immutable i_owner;
     uint256 public s_raffleId;
-    
+
     // Chainlink VRF Variables
     uint256 private s_subscriptionId; // Changed from immutable to regular state variable
     LinkTokenInterface LINK_TOKEN;
@@ -51,9 +53,9 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     event RequestedRaffleWinner(uint256 indexed requestId);
     event RaffleEnter(address indexed player);
     event WinnerPicked(address indexed player);
-    
-    mapping (uint256 requestId => address winner) public s_requestIdToWinner;
-    mapping (uint256 raffleId => uint256 pool) public s_raffleIdToPool;
+
+    mapping(uint256 requestId => address winner) public s_requestIdToWinner;
+    mapping(uint256 raffleId => uint256 pool) public s_raffleIdToPool;
 
     /* Functions */
     constructor(
@@ -74,7 +76,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         s_lastTimeStamp = block.timestamp;
         i_callbackGasLimit = callbackGasLimit;
         s_raffleId = 0;
-         // Set the subscription ID
+        // Set the subscription ID
     }
 
     function enterRaffle() public payable {
@@ -124,7 +126,6 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
         s_raffleState = RaffleState.CALCULATING;
 
-       
         // Create the request struct
         VRFV2PlusClient.RandomWordsRequest memory req = VRFV2PlusClient.RandomWordsRequest({
             keyHash: i_gasLane,
@@ -132,11 +133,9 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
             requestConfirmations: REQUEST_CONFIRMATIONS,
             callbackGasLimit: i_callbackGasLimit,
             numWords: NUM_WORDS,
-            extraArgs: VRFV2PlusClient._argsToBytes(
-                VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
-            )
+            extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: false}))
         });
-        
+
         // Will revert if subscription is not set and funded.
         uint256 requestId = s_vrfCoordinator.requestRandomWords(req);
         emit RequestedRaffleWinner(requestId);
@@ -170,11 +169,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     // Assumes this contract owns link.
     // 1000000000000000000 = 1 LINK
     function topUpSubscription(uint256 amount) external onlyOwner {
-        LINK_TOKEN.transferAndCall(
-            address(s_vrfCoordinator),
-            amount,
-            abi.encode(s_subscriptionId)
-        );
+        LINK_TOKEN.transferAndCall(address(s_vrfCoordinator), amount, abi.encode(s_subscriptionId));
     }
 
     function addConsumer(address consumerAddress) external onlyOwner {
@@ -233,11 +228,11 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         return s_players.length;
     }
 
-    function getRaffleId() public view returns(uint256) {
+    function getRaffleId() public view returns (uint256) {
         return s_raffleId;
     }
 
-    function getRaffleIdToPool(uint256 raffleId) public view returns(uint256) {
+    function getRaffleIdToPool(uint256 raffleId) public view returns (uint256) {
         return s_raffleIdToPool[raffleId];
     }
 

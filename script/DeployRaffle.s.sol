@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import {Script} from "forge-std/Script.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {Raffle} from "../src/Raffle.sol";
+
 contract DeployRaffle is Script {
     function run() external returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig(); // This comes with our mocks!
@@ -18,6 +19,6 @@ contract DeployRaffle is Script {
             config.vrfCoordinatorV2_5
         );
         vm.stopBroadcast();
-        return(raffle, helperConfig);
+        return (raffle, helperConfig);
     }
 }

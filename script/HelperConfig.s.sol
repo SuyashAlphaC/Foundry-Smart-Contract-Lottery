@@ -11,8 +11,7 @@ abstract contract CodeConstants {
     // LINK / ETH price
     int256 public constant MOCK_WEI_PER_UINT_LINK = 4e15;
 
-    address public constant FOUNDRY_DEFAULT_SENDER =
-        0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
+    address public constant FOUNDRY_DEFAULT_SENDER = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
 
     uint256 public constant ETH_SEPOLIA_CHAIN_ID = 11155111;
     uint256 public constant ETH_MAINNET_CHAIN_ID = 1;
@@ -58,16 +57,11 @@ contract HelperConfig is CodeConstants, Script {
         return getConfigByChainId(block.chainid);
     }
 
-    function setConfig(
-        uint256 chainId,
-        NetworkConfig memory networkConfig
-    ) public {
+    function setConfig(uint256 chainId, NetworkConfig memory networkConfig) public {
         networkConfigs[chainId] = networkConfig;
     }
 
-    function getConfigByChainId(
-        uint256 chainId
-    ) public returns (NetworkConfig memory) {
+    function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
         if (networkConfigs[chainId].vrfCoordinatorV2_5 != address(0)) {
             return networkConfigs[chainId];
         } else if (chainId == LOCAL_CHAIN_ID) {
@@ -77,11 +71,7 @@ contract HelperConfig is CodeConstants, Script {
         }
     }
 
-    function getMainnetEthConfig()
-        public
-        pure
-        returns (NetworkConfig memory mainnetNetworkConfig)
-    {
+    function getMainnetEthConfig() public pure returns (NetworkConfig memory mainnetNetworkConfig) {
         mainnetNetworkConfig = NetworkConfig({
             gasLane: 0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805,
             automationUpdateInterval: 30, // 30 seconds
@@ -93,11 +83,7 @@ contract HelperConfig is CodeConstants, Script {
         });
     }
 
-    function getSepoliaEthConfig()
-        public
-        pure
-        returns (NetworkConfig memory sepoliaNetworkConfig)
-    {
+    function getSepoliaEthConfig() public pure returns (NetworkConfig memory sepoliaNetworkConfig) {
         sepoliaNetworkConfig = NetworkConfig({
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             automationUpdateInterval: 30, // 30 seconds
@@ -115,17 +101,13 @@ contract HelperConfig is CodeConstants, Script {
             return localNetworkConfig;
         }
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock = new VRFCoordinatorV2_5Mock(
-                MOCK_BASE_FEE,
-                MOCK_GAS_PRICE_LINK,
-                MOCK_WEI_PER_UINT_LINK
-            );
+        VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
         LinkToken link = new LinkToken();
-   
+
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
-         
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // doesn't really matter
             automationUpdateInterval: 30, // 30 seconds
             raffleEntranceFee: 0.01 ether,

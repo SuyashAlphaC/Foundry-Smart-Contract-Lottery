@@ -31,7 +31,7 @@ contract RaffleTest is Test {
     function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.run();
-        HelperConfig.NetworkConfig memory config =  helperConfig.getConfigByChainId(block.chainid);
+        HelperConfig.NetworkConfig memory config = helperConfig.getConfigByChainId(block.chainid);
         link = config.link;
         callbackGasLimit = config.callbackGasLimit;
         interval = config.automationUpdateInterval;
@@ -47,6 +47,7 @@ contract RaffleTest is Test {
         VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, (3 ether) * 100);
         _;
     }
+
     function testRaffleInitializesInOpenState() public view {
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
@@ -69,7 +70,7 @@ contract RaffleTest is Test {
         address playerRecorded = raffle.getPlayer(0);
         assert(playerRecorded == PLAYER);
     }
-   
+
     /////////////////////////
     // checkUpkeep         //
     /////////////////////////
@@ -80,13 +81,11 @@ contract RaffleTest is Test {
         vm.roll(block.number + 1);
 
         // Act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         // Assert
         assert(!upkeepNeeded);
     }
-
-  
 
     function testCheckUpkeepReturnsFalseIfEnoughTimeHasntPassed() public anvilConfigured {
         // Arrange
@@ -94,7 +93,7 @@ contract RaffleTest is Test {
         raffle.enterRaffle{value: entranceFee}();
 
         // Act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         // Assert
         assert(!upkeepNeeded);
@@ -108,7 +107,7 @@ contract RaffleTest is Test {
         vm.roll(block.number + 1);
 
         // Act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         // Assert
         assert(upkeepNeeded);
@@ -118,19 +117,14 @@ contract RaffleTest is Test {
     // performUpkeep       //
     /////////////////////////
 
-    function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public anvilConfigured{
+    function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public anvilConfigured {
         // Arrange
         uint256 currentBalance = 0;
         uint256 numPlayers = 0;
         Raffle.RaffleState rState = raffle.getRaffleState();
         // Act / Assert
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__UpkeepNotNeeded.selector,
-                currentBalance,
-                numPlayers,
-                rState
-            )
+            abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState)
         );
         raffle.performUpkeep("");
     }
@@ -143,17 +137,12 @@ contract RaffleTest is Test {
         _;
     }
 
- 
     modifier skipFork() {
         if (block.chainid != 31337) {
             return;
         }
         _;
     }
-
-  
-
-   
 
     /////////////////////////
     // Getter Functions    //
@@ -182,7 +171,7 @@ contract RaffleTest is Test {
 
     function testGetNumberOfPlayers() public {
         assert(raffle.getNumberOfPlayers() == 0);
-        
+
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
         assert(raffle.getNumberOfPlayers() == 1);
@@ -205,7 +194,7 @@ contract RaffleTest is Test {
         address player1 = makeAddr("player1");
         address player2 = makeAddr("player2");
         address player3 = makeAddr("player3");
-        
+
         vm.deal(player1, STARTING_USER_BALANCE);
         vm.deal(player2, STARTING_USER_BALANCE);
         vm.deal(player3, STARTING_USER_BALANCE);
@@ -213,10 +202,10 @@ contract RaffleTest is Test {
         // Act
         vm.prank(player1);
         raffle.enterRaffle{value: entranceFee}();
-        
+
         vm.prank(player2);
         raffle.enterRaffle{value: entranceFee}();
-        
+
         vm.prank(player3);
         raffle.enterRaffle{value: entranceFee}();
 
@@ -230,11 +219,11 @@ contract RaffleTest is Test {
     function testRafflePoolTracking() public {
         // Arrange
         uint256 currentRaffleId = raffle.getRaffleId();
-        
+
         // Act
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
-        
+
         // Assert
         assert(raffle.getRaffleIdToPool(currentRaffleId) == entranceFee);
     }
@@ -251,7 +240,6 @@ contract RaffleTest is Test {
         assert(raffle.getPlayer(0) == PLAYER);
         assert(raffle.getPlayer(1) == PLAYER);
     }
-
 
     /////////////////////////
     // Fuzz Tests          //
@@ -271,7 +259,7 @@ contract RaffleTest is Test {
     function testFuzzMultipleEntries(uint8 numPlayers) public {
         // Arrange
         vm.assume(numPlayers > 0 && numPlayers <= 100);
-        
+
         // Act
         for (uint8 i = 0; i < numPlayers; i++) {
             address player = address(uint160(i + 1));
